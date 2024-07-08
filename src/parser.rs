@@ -1,9 +1,8 @@
 use std::collections::HashMap;
-use std::io::BufRead;
 
 #[derive(Debug, PartialEq)]
 pub struct HttpRequest {
-   pub method: String,
+    pub method: String,
     pub target: String,
     pub version: String, //TODO maybe it should be an integer
     pub headers: HashMap<String, String>,
@@ -21,7 +20,9 @@ pub enum HttpRequestError {
 
 impl HttpRequest {
     pub fn parse<T>(request: T) -> Result<HttpRequest, HttpRequestError>
-    where T: AsRef<str>{
+    where
+        T: AsRef<str>,
+    {
         let mut lines = request.as_ref().lines();
 
         // Parse request line
@@ -39,12 +40,22 @@ impl HttpRequest {
                 break;
             }
             let mut header_parts = line.splitn(2, ':');
-            headers.insert(header_parts.next().ok_or(HttpRequestError::InvalidHeader)?.trim().to_string(),
-                           header_parts.next().ok_or(HttpRequestError::InvalidHeader)?.trim().to_string());
+            headers.insert(
+                header_parts
+                    .next()
+                    .ok_or(HttpRequestError::InvalidHeader)?
+                    .trim()
+                    .to_string(),
+                header_parts
+                    .next()
+                    .ok_or(HttpRequestError::InvalidHeader)?
+                    .trim()
+                    .to_string(),
+            );
         }
 
         // Parse body
-        let body : String = lines.collect();
+        let body: String = lines.collect();
 
         Ok(HttpRequest {
             method: method.to_string(),
@@ -55,7 +66,6 @@ impl HttpRequest {
         })
     }
 }
-
 
 #[test]
 fn test1() {
@@ -76,8 +86,8 @@ fn test1() {
     match parsed_request {
         Ok(request) => {
             println!("{:#?}", request);
-            assert_eq!(request,desired_request);
-        },
+            assert_eq!(request, desired_request);
+        }
         Err(e) => eprintln!("Failed to parse HTTP request: {:?}", e),
     }
 }
