@@ -38,7 +38,7 @@ fn handle_connection(mut stream: TcpStream) {
             if split_req_target.next().ok_or(NotFound) == Ok("") {
                 match split_req_target.next() {
                     None => {
-                        stream.write_all(b"HTTP/1.1 404 OK\r\n\r\n").unwrap();
+                        stream.write_all(b"HTTP/1.1 404 Not Found\r\n\r\n").unwrap();
                     } //TODO should be unreachable
                     Some("") => {
                         stream.write_all(b"HTTP/1.1 200 OK\r\n\r\n").unwrap();
@@ -47,7 +47,7 @@ fn handle_connection(mut stream: TcpStream) {
                         echo(stream, split_req_target.next());
                     }
                     Some(_) => {
-                        stream.write_all(b"HTTP/1.1 404 OK\r\n\r\n").unwrap();
+                        stream.write_all(b"HTTP/1.1 404 Not Found\r\n\r\n").unwrap();
                     }
                 }
             }
@@ -73,3 +73,4 @@ fn echo(mut stream: TcpStream, echo_message: Option<&str>) {
         }
     }
 }
+
