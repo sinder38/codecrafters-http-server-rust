@@ -62,7 +62,7 @@ fn process_get(http_request: HttpRequest) -> Vec<u8> {
                     // b"HTTP/1.1 200 OK\r\n\r\n"
                     HttpResponse::new(HttpResponseStatus::Ok, None, None, None).as_bytes()
                 }
-                Some(&"echo") => respond_echo(http_request, depth).as_bytes(),
+                Some(&"echo/") => respond_echo(http_request, depth).as_bytes(),
                 Some(&"user-agent") => respond_user_agent(http_request, depth).as_bytes(),
                 Some(_) => {
                     // b"HTTP/1.1 404 Not Found\r\n\r\n"
