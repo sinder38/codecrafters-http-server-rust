@@ -58,8 +58,8 @@ fn process_get(http_request: HttpRequest) -> Vec<u8> {
         Some(&"/") => {
             depth += 1;
             match http_request.uri.get(depth) {
-                Some(&"") => {
-                    // b"HTTP/1.1 200 OK\r\n\r\n"
+                None => {
+                    println!("responding with pong");
                     HttpResponse::new(HttpResponseStatus::Ok, None, None, None).as_bytes()
                 }
                 Some(&"echo/") => respond_echo(http_request, depth).as_bytes(),
@@ -68,9 +68,7 @@ fn process_get(http_request: HttpRequest) -> Vec<u8> {
                     // b"HTTP/1.1 404 Not Found\r\n\r\n"
                     HttpResponse::new(HttpResponseStatus::NotFound, None, None, None).as_bytes()
                 }
-                None => {
-                    HttpResponse::new(HttpResponseStatus::NotFound, None, None, None).as_bytes()
-                }
+
             }
         }
         None | Some(_) => {
