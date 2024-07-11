@@ -8,6 +8,7 @@ pub const USER_AGENT_KEY: &str = "User-Agent";
 pub const PLAIN_TEXT_CONTENT_TYPE: &str = "text/plain";
 pub const FILE_CONTENT_TYPE: &str = "application/octet-stream";
 
+#[allow(dead_code)]
 #[derive(Debug, PartialEq)]
 pub enum HttpResponseStatus {
     Ok,
@@ -85,25 +86,25 @@ impl HttpResponse {
             }
         }
     }
-    pub fn status_code(&self) -> &HttpResponseStatus {
+    pub fn _status_code(&self) -> &HttpResponseStatus {
         &self.status_code
     }
 
-    pub fn headers(&self) -> &HashMap<String, String> {
+    pub fn _headers(&self) -> &HashMap<String, String> {
         &self.headers
     }
 
-    pub fn body(&self) -> &str {
+    pub fn _body(&self) -> &str {
         &self.body
     }
-    pub fn set_status_code(&mut self, status_code: HttpResponseStatus) {
+    pub fn _set_status_code(&mut self, status_code: HttpResponseStatus) {
         self.status_code = status_code;
     }
-    pub fn add_header(&mut self, key: String, value: String) {
+    pub fn _add_header(&mut self, key: String, value: String) {
         // TODO prevent content length from being added
         self.headers.insert(key, value);
     }
-    pub fn set_body(&mut self, body: String, content_type: String) {
+    pub fn _set_body(&mut self, body: String, content_type: String) {
         // content type should be enum
         self.body = body;
         self.update_content_length();

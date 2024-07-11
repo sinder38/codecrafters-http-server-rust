@@ -26,7 +26,7 @@ impl Config {
             }
         }
         Ok(Config {
-            file_directory: file_directory.ok_or("No file directory specified")?,
+            file_directory: file_directory.unwrap_or("".to_string()), // changed so no file directory is also accepted
         })
     }
 }
