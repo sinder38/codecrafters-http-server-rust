@@ -6,6 +6,7 @@ pub const CONTENT_TYPE_KEY: &str = "Content-Type";
 pub const USER_AGENT_KEY: &str = "User-Agent";
 
 pub const PLAIN_TEXT_CONTENT_TYPE: &str = "text/plain";
+pub const FILE_CONTENT_TYPE: &str = "application/octet-stream";
 
 #[derive(Debug, PartialEq)]
 pub enum HttpResponseStatus {
