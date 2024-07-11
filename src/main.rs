@@ -4,6 +4,7 @@ mod parser;
 use std::io::{Read, Write};
 use std::net::{TcpListener, TcpStream};
 use std::ops::Deref;
+use std::thread::spawn;
 
 use crate::http_response::{
     HttpResponse, HttpResponseStatus, PLAIN_TEXT_CONTENT_TYPE, USER_AGENT_KEY,
@@ -16,9 +17,9 @@ fn main() {
 
     for stream in listener.incoming() {
         match stream {
-            Ok(stream) => {
+            Ok( stream) => {
                 println!("accepted new connection");
-                handle_connection(stream);
+                spawn(|| handle_connection(stream));
             }
 
             Err(e) => {
