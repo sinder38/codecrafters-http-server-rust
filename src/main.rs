@@ -1,45 +1,46 @@
 mod http_response;
 mod parser;
 
-use std::io::{Read, Write};
-use std::net::{TcpListener, TcpStream};
 use std::ops::Deref;
+use tokio::io::{AsyncReadExt, AsyncWriteExt};
+use tokio::net::{TcpListener, TcpStream};
 
 use crate::http_response::{
     HttpResponse, HttpResponseStatus, PLAIN_TEXT_CONTENT_TYPE, USER_AGENT_KEY,
 };
 use crate::parser::HttpRequest;
-fn main() {
+
+#[tokio::main]
+async fn main() -> anyhow::Result<()> {
     println!("Logs:");
 
-    let listener = TcpListener::bind("127.0.0.1:4221").unwrap();
+    let listener = TcpListener::bind("127.0.0.1:4221").await?;
 
-    for stream in listener.incoming() {
-        match stream {
-            Ok(stream) => {
-                println!("accepted new connection");
-                handle_connection(stream);
-            }
+    loop {
+        // Accept a new socket
+        let (socket, addr) = listener.accept().await?;
+        println!("New connection: {}", addr);
 
-            Err(e) => {
-                println!("error: {}", e);
-            }
-        }
+        // Spawn a new task to handle the connection
+        tokio::spawn(async move {
+            handle_connection(socket).await;
+        });
     }
 }
 
-fn handle_connection(mut stream: TcpStream) {
+async fn handle_connection(mut stream: TcpStream) {
     let mut buffer = [0; 1024];
-    stream.read(&mut buffer).unwrap();
+    stream.read(&mut buffer).await.unwrap(); // TODO remove this unwrap
+
     let binding = String::from_utf8_lossy(&buffer[..]);
-    let request = binding.deref(); // Not sure if this is the best way to do this
+    let request = binding.deref(); // Not sure if this is the best way to do this. maybe should just clone
     let http_request = HttpRequest::from(request);
     match http_request {
         Ok(r) => {
             println!("{:#?}", r);
             match r.method {
                 "GET" => {
-                    stream.write_all(&process_get(r)).unwrap();
+                    stream.write_all(&process_get(r)).await.unwrap();
                 }
                 _ => {
                     panic!("Unexpected method")
@@ -47,7 +48,12 @@ fn handle_connection(mut stream: TcpStream) {
             }
         }
         Err(_) => {
-            stream.write_all(b"HTTP/1.1 404 Not Found\r\n\r\n").unwrap();
+            stream
+                .write_all(
+                    &HttpResponse::new(HttpResponseStatus::NotFound, None, None, None).as_bytes(),
+                )
+                .await
+                .unwrap();
         }
     }
 }
@@ -68,7 +74,6 @@ fn process_get(http_request: HttpRequest) -> Vec<u8> {
                     // b"HTTP/1.1 404 Not Found\r\n\r\n"
                     HttpResponse::new(HttpResponseStatus::NotFound, None, None, None).as_bytes()
                 }
-
             }
         }
         None | Some(_) => {
